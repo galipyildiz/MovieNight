@@ -1,0 +1,47 @@
+﻿@model List<Movie>
+@{
+    ViewBag.Title = "Movies";
+}
+
+<table id="table" class="table">
+    <thead>
+        <tr>
+            <th>Poster</th>
+            <th>Title</th>
+            <th>Year</th>
+            <th>Genre</th>
+            <th>Rating</th>
+            <th>Country</th>
+            <th>Language</th>
+            <th>Director</th>
+            <th>Actors</th>
+            <th>Released</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><img src="@item.Poster" alt="@item.Title" width="100" /></td>
+                <td>@item.Title</td>
+                <td>@item.Year</td>
+                <td>@item.Genre</td>
+                <td>@item.ImdbRating</td>
+                <td>@item.Country</td>
+                <td>@item.Language</td>
+                <td>@item.Director</td>
+                <td>@item.Actors</td>
+                <td>@(item.Released.HasValue ? item.Released.Value.ToShortDateString() : "N/A")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section scripts{
+    <script>
+        $("#table").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#table_wrapper .col-md-6:eq(0)');    
+    </script>
+    } 
+
