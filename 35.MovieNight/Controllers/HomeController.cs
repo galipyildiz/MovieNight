@@ -1,4 +1,5 @@
 ﻿using _35.MovieNight.Models;
+using _35.MovieNight.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,35 @@ using System.Web.Mvc;
 
 namespace _35.MovieNight.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        ApplicationDbContext db = new ApplicationDbContext();
-        public ActionResult Index()
+        public ActionResult Index(int page = 1)
         {
-            return View(db.Movies.ToList());
+            IQueryable<Movie> query = db.Movies;
+            int totalItems = query.Count();
+            int pageSize = 9;
+            int totalPages = (int)Math.Ceiling(totalItems / (decimal)pageSize);
+            List<Movie> movies = query
+                .OrderByDescending(x => x.ImdbRating)//skip kullanabilmek ordeyby kullanmamız gerekiyor.
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            HomeViewModel vm = new HomeViewModel()
+            {
+                Movies = movies,
+                PaginationInfo = new PaginationInfoViewModel()
+                {
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    ItemsOnpage = movies.Count,
+                    TotalItems = totalItems,
+                    TotalPages = totalPages,
+                    HasNext = page < totalPages,
+                    HasPrevious = page > 1
+                }
+            };
+            
+            return View(vm);
         }
 
         public ActionResult About()
@@ -27,14 +51,6 @@ namespace _35.MovieNight.Controllers
             ViewBag.Message = "Your contact page.";
 
             return View();
-        }
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }
